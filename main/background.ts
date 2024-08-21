@@ -1,5 +1,5 @@
 import path from 'path'
-import { app, ipcMain, dialog } from 'electron'
+import { app, ipcMain, dialog, shell } from 'electron'
 import serve from 'electron-serve'
 import { createWindow } from './helpers'
 
@@ -30,15 +30,26 @@ if (isProd) {
     mainWindow.webContents.openDevTools()
   }
 
-  // Listen for an event from the renderer process to open the directory
+  // Handle directory selection
   ipcMain.handle('open-directory-dialog', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
       properties: ['openDirectory'],
     });
-    if (canceled) {
-      return null;
-    } else {
-      return filePaths[0]; // Return the selected directory path
+    return canceled ? null : filePaths[0];
+  });
+
+  // Handle file selection
+  ipcMain.handle('open-file-dialog', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow!, {
+      properties: ['openFile'],
+    });
+    return canceled ? null : filePaths[0];
+  });
+
+  // Handle opening file with default application
+  ipcMain.handle('open-file-with-app', async (_event, filePath: string) => {
+    if (filePath) {
+      shell.openPath(filePath);
     }
   });
 })()

@@ -17,6 +17,8 @@ const handler = {
 
 contextBridge.exposeInMainWorld('electron', {
   openDirectoryDialog: () => ipcRenderer.invoke('open-directory-dialog'),
+  openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+  openFileWithApp: (filePath) => ipcRenderer.invoke('open-file-with-app', filePath),
 });
 
 export type IpcHandler = typeof handler
